@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
+# Headers for HTTP requests
 headers = {
     "Host": "www.arocalypse.com",
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:159.0) Gecko/20100101 Firefox/159.0",
@@ -19,6 +20,7 @@ headers = {
     "Cache-Control": "no-cache",
 }
 
+# User enters profile page URL
 url = str(input("""
 Paste the URL for your profile page.
 This can be done via right-click on Windows and Ctrl+Shift+V everywhere else.
@@ -29,6 +31,7 @@ The URL should be similar to this:
 > """)) + "/content"
 
 def get_page(url, headers, max_retry_attempts = 5):
+    # Get page with <max_retry_attempts> retries
     for i in range(max_retry_attempts):
         print(f"==> Getting profile page (attempt {i + 1} of {max_retry_attempts})...")
         response = requests.get(url, headers = headers)
@@ -39,11 +42,13 @@ def get_page(url, headers, max_retry_attempts = 5):
             print("[ERROR] Arocalypse returned error code:", response.status_code)
             print("Retrying...")
 
+# Send initial HTTP request
 page = get_page(url, headers)
 if not page:
     print("Failed to get page:", url)
     exit
 
+# Extract all links on "All Activity" page
 for link in page.find_all("a"):
     if "page" in str(link):
         print(link.get("href"))
