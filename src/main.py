@@ -33,7 +33,7 @@ The URL should be similar to this:
 def get_page(url, headers, max_retry_attempts = 5):
     # Get page with <max_retry_attempts> retries
     for i in range(max_retry_attempts):
-        print(f"==> Getting profile page (attempt {i + 1} of {max_retry_attempts})...")
+        print(f"==> Getting {url} (attempt {i + 1} of {max_retry_attempts})...")
         response = requests.get(url, headers = headers)
 
         if response.status_code == 200:
@@ -49,6 +49,16 @@ if not page:
     exit
 
 # Extract all links on "All Activity" page
+activity_page_urls = []
 for link in page.find_all("a"):
     if "page" in str(link):
-        print(link.get("href"))
+        activity_page_urls += [link.get("href")]
+
+# Extract highest page number
+last_page_num = int(activity_page_urls[-1].split("/")[7])
+
+for page in range(last_page_num):
+    with open(f"{page}.html", "w") as outfile:
+        soup = get_page(f"https://www.arocalypse.com/profile/11354-nesitive/content/page/{page + 1}/?all_activity=1", headers = headers)
+        for h2 in soup.find_all("h2"):
+            print(h2)
