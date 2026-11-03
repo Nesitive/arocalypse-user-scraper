@@ -57,8 +57,21 @@ for link in page.find_all("a"):
 # Extract highest page number
 last_page_num = int(activity_page_urls[-1].split("/")[7])
 
-for page in range(last_page_num):
-    with open(f"{page}.html", "w") as outfile:
+# Get all post IDs of user's posts
+post_urls = []
+for page in range(3):
         soup = get_page(f"https://www.arocalypse.com/profile/11354-nesitive/content/page/{page + 1}/?all_activity=1", headers = headers)
-        for h2 in soup.find_all("h2"):
-            print(h2)
+        for link in soup.select("h2>span>a")[1:]:
+            post_urls += [link.get("href")]
+
+# Get posts
+def get_post_from_id(page, post_id):
+    for post in page.select("article.cPost"):
+        print(int(post.get("id").split("_")[-1]), post_id)
+        if post.get("id").split("_")[-1] == post_id:
+            return post
+    
+while len(post_urls) > 0:
+    current_page = get_page(post_urls[0], headers = headers)
+    print(get_post_from_id(current_page, post_urls[0].split("=")[-1]))
+    break
